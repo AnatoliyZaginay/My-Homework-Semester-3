@@ -7,8 +7,8 @@ namespace Task_1
     {
         static void Main(string[] args)
         {
-            var firstMatrix = MatrixOperations.Generate(500, 500, -8, 10);
-            var secondMatrix = MatrixOperations.Generate(500, 500, -8, 10);
+            var firstMatrix = MatrixOperations.Generate(200, 200, -8, 10);
+            var secondMatrix = MatrixOperations.Generate(200, 200, -8, 10);
 
             var timer = new Stopwatch();
 
@@ -21,6 +21,9 @@ namespace Task_1
             var secondResult = MatrixOperations.MultiplyInParallel(firstMatrix, secondMatrix);
             timer.Stop();
             Console.WriteLine($"{timer.ElapsedMilliseconds}\n\n");
+
+            Console.WriteLine(MatrixOperations.Compare(firstMatrix, secondMatrix));
+            Console.WriteLine(MatrixOperations.Compare(firstResult, secondResult));
         }
     }
 }

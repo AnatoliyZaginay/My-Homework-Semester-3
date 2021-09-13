@@ -13,6 +13,11 @@ namespace Task_1
                 throw new ArgumentException("The minimum number must be less than the maximum");
             }
 
+            if (rowsNumber <= 0 || columnsNumber <= 0)
+            {
+                throw new ArgumentException("Incorrect matrix sizes");
+            }
+
             var newMatrix = new int[rowsNumber, columnsNumber];
             var random = new Random();
 
@@ -76,11 +81,39 @@ namespace Task_1
             }
         }
 
+        public static bool Compare(int[,] firstMatrix, int[,] secondMatrix)
+        {
+            if (firstMatrix.GetLength(0) != secondMatrix.GetLength(0) ||
+                firstMatrix.GetLength(1) != secondMatrix.GetLength(1))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < firstMatrix.GetLength(0); ++i)
+            {
+                for (int j = 0; j < firstMatrix.GetLength(1); ++j)
+                {
+                    if (firstMatrix[i, j] != secondMatrix[i, j])
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         public static int[,] Multiply(int[,] firstMatrix, int[,] secondMatrix)
         {
             if (firstMatrix.GetLength(1) != secondMatrix.GetLength(0))
             {
                 throw new ArgumentException("The number of columns of the first matrix must match the number of rows of the second matrix");
+            }
+
+            if (firstMatrix.GetLength(0) == 0 || firstMatrix.GetLength(1) == 0 ||
+                secondMatrix.GetLength(0) == 0 || secondMatrix.GetLength(1) == 0)
+            {
+                throw new ArgumentException("The number of rows or columns in the matrix must not be zero");
             }
 
             var result = new int[firstMatrix.GetLength(0), secondMatrix.GetLength(1)];
@@ -99,7 +132,7 @@ namespace Task_1
             return result;
         }
 
-        public static void MultiplyMatrixChunk(int[,] firstMatrix, int[,] secondMatrix, int[,] result, int chunkSize, int chunkNumber)
+        private static void MultiplyMatrixChunk(int[,] firstMatrix, int[,] secondMatrix, int[,] result, int chunkSize, int chunkNumber)
         {
             for (int i = chunkNumber * chunkSize; i < Math.Min((chunkNumber + 1) * chunkSize, result.GetLength(0)); ++i)
             {
@@ -118,6 +151,12 @@ namespace Task_1
             if (firstMatrix.GetLength(1) != secondMatrix.GetLength(0))
             {
                 throw new ArgumentException("The number of columns of the first matrix must match the number of rows of the second matrix");
+            }
+
+            if (firstMatrix.GetLength(0) == 0 || firstMatrix.GetLength(1) == 0 ||
+                secondMatrix.GetLength(0) == 0 || secondMatrix.GetLength(1) == 0)
+            {
+                throw new ArgumentException("The number of rows or columns in the matrix must not be zero");
             }
 
             var result = new int[firstMatrix.GetLength(0), secondMatrix.GetLength(1)];
