@@ -7,23 +7,12 @@ namespace Task_1
     {
         static void Main(string[] args)
         {
-            var firstMatrix = MatrixOperations.Generate(200, 200, -8, 10);
-            var secondMatrix = MatrixOperations.Generate(200, 200, -8, 10);
+            var statsM = AlgorithmStatistics.GetAlgorithmAverageStats(50, -10000, 10000, 100, MatrixOperations.Multiply);
+            var statsP = AlgorithmStatistics.GetAlgorithmAverageStats(50, -10000, 10000, 100, MatrixOperations.MultiplyInParallel);
 
-            var timer = new Stopwatch();
+            Console.WriteLine($"{statsM.Item1} {statsM.Item2}\n");
 
-            timer.Start();
-            var firstResult = MatrixOperations.Multiply(firstMatrix, secondMatrix);
-            timer.Stop();
-            Console.WriteLine($"{timer.ElapsedMilliseconds}\n\n");
-
-            timer.Restart();
-            var secondResult = MatrixOperations.MultiplyInParallel(firstMatrix, secondMatrix);
-            timer.Stop();
-            Console.WriteLine($"{timer.ElapsedMilliseconds}\n\n");
-
-            Console.WriteLine(MatrixOperations.Compare(firstMatrix, secondMatrix));
-            Console.WriteLine(MatrixOperations.Compare(firstResult, secondResult));
+            Console.WriteLine($"{statsP.Item1} {statsP.Item2}\n");
         }
     }
 }
