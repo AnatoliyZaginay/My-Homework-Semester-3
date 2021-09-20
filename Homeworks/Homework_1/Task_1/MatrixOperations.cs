@@ -4,8 +4,18 @@ using System.Threading;
 
 namespace Task_1
 {
+    /// <summary>
+    /// Static class for working with matrices.
+    /// </summary>
     public static class MatrixOperations
     {
+        /// <summary>
+        /// Generates a matrix based on the specified parameters.
+        /// </summary>
+        /// <param name="rowsNumber">Number of rows in the matrix.</param>
+        /// <param name="columnsNumber">Number of columns in the matrix.</param>
+        /// <param name="minNumber">The minimum random number that can be contained in the generated matrix.</param>
+        /// <param name="maxNumber">The maximum random number that can be contained in the generated matrix.</param>
         public static int[,] Generate(int rowsNumber, int columnsNumber, int minNumber, int maxNumber)
         {
             if (minNumber > maxNumber)
@@ -32,6 +42,10 @@ namespace Task_1
             return newMatrix;
         }
 
+        /// <summary>
+        /// Reads a matrix from a specified file.
+        /// </summary>
+        /// <param name="path">The path to the file containing the matrix.</param>
         public static int[,] ReadFromFile(string path)
         {
             if (!File.Exists(path))
@@ -63,6 +77,11 @@ namespace Task_1
             return matrix;
         }
 
+        /// <summary>
+        /// Writes the matrix to the specified file.
+        /// </summary>
+        /// <param name="matrix">The matrix that will be written.</param>
+        /// <param name="path">The path to the specified file.</param>
         public static void WriteToFile(int[,] matrix, string path)
         {
             using var file = new StreamWriter(path);
@@ -81,6 +100,12 @@ namespace Task_1
             }
         }
 
+        /// <summary>
+        /// Compares two matrices.
+        /// </summary>
+        /// <param name="firstMatrix">The first matrix.</param>
+        /// <param name="secondMatrix">The second matrix.</param>
+        /// <returns>Returns true if the matrices are the same, otherwise returns false.</returns>
         public static bool Compare(int[,] firstMatrix, int[,] secondMatrix)
         {
             if (firstMatrix.GetLength(0) != secondMatrix.GetLength(0) ||
@@ -103,6 +128,11 @@ namespace Task_1
             return true;
         }
 
+        /// <summary>
+        /// Multiplies matrices in single-threaded mode.
+        /// </summary>
+        /// <param name="firstMatrix">The first matrix.</param>
+        /// <param name="secondMatrix">The second matrix.</param>
         public static int[,] Multiply(int[,] firstMatrix, int[,] secondMatrix)
         {
             if (firstMatrix.GetLength(1) != secondMatrix.GetLength(0))
@@ -146,6 +176,11 @@ namespace Task_1
             }
         }
 
+        /// <summary>
+        /// Multiplies matrices in multithreaded mode.
+        /// </summary>
+        /// <param name="firstMatrix">The first matrix.</param>
+        /// <param name="secondMatrix">The second matrix.</param>
         public static int[,] MultiplyInParallel(int[,] firstMatrix, int[,] secondMatrix)
         {
             if (firstMatrix.GetLength(1) != secondMatrix.GetLength(0))

@@ -8,11 +8,6 @@ namespace Task_1.Tests
     [TestFixture]
     public class MatrixOperationsTests
     {
-        private int[,] firstMatrix =
-        {
-            { }
-        };
-
         [TestCaseSource(nameof(CorrectTestDataForGeneration))]
         public void GenerateMatrixTest(int rowsNumber, int columnsNumber, int minNumber, int maxNumber)
         {
@@ -55,16 +50,16 @@ namespace Task_1.Tests
         }
 
         [TestCaseSource(nameof(CorrectTestDataForMultiplication))]
-        public void MultiplyMatricesTest(int[,] firstMatrix, int[,] secondMatrix, int[,] expectedResult, Func<int[,], int[,], int[,]> matrixMultiplyFunction)
+        public void MultiplyMatricesTest(int[,] firstMatrix, int[,] secondMatrix, int[,] expectedResult, Func<int[,], int[,], int[,]> matrixMultiplicationFunction)
         {
-            var result = matrixMultiplyFunction(firstMatrix, secondMatrix);
+            var result = matrixMultiplicationFunction(firstMatrix, secondMatrix);
             Assert.IsTrue(MatrixOperations.Compare(expectedResult, result));
         }
 
         [TestCaseSource(nameof(IncorrectTestDataForMultiplication))]
-        public void MultiplyMatricesShouldThrowExceptionIfDataIsIncorrect(int[,] firstMatrix, int[,] secondMatrix, Func<int[,], int[,], int[,]> matrixMultiplyFunction)
+        public void MultiplyMatricesShouldThrowExceptionIfDataIsIncorrect(int[,] firstMatrix, int[,] secondMatrix, Func<int[,], int[,], int[,]> matrixMultiplicationFunction)
         {
-            Assert.Throws<ArgumentException>(() => matrixMultiplyFunction(firstMatrix, secondMatrix));
+            Assert.Throws<ArgumentException>(() => matrixMultiplicationFunction(firstMatrix, secondMatrix));
         }
 
         [TestCaseSource(nameof(TestDataForComparisonOfMultiplications))]
