@@ -25,7 +25,7 @@ namespace Task_1
             }
             catch (ArgumentException exception)
             {
-                Console.WriteLine(exception.Message);
+                Console.WriteLine($"Error: {exception.Message}");
             }
         }
     }
