@@ -10,7 +10,7 @@ namespace Task_1
     /// </summary>
     public static class AlgorithmStatistics
     {
-        private static long GetAlgotithmRunningTime(int[,] firstMatrix, int[,] secondMatrix, Func<int[,], int[,], int[,]> matrixMultiplyFunction)
+        private static long GetAlgorithmRunningTime(int[,] firstMatrix, int[,] secondMatrix, Func<int[,], int[,], int[,]> matrixMultiplyFunction)
         {
             var timer = new Stopwatch();
             timer.Start();
@@ -37,7 +37,7 @@ namespace Task_1
             {
                 var firstMatrix = MatrixOperations.Generate(matrixSize, matrixSize, minNumber, maxNumber);
                 var secondMatrix = MatrixOperations.Generate(matrixSize, matrixSize, minNumber, maxNumber);
-                var result = GetAlgotithmRunningTime(firstMatrix, secondMatrix, matrixMultiplicationFunction);
+                var result = GetAlgorithmRunningTime(firstMatrix, secondMatrix, matrixMultiplicationFunction);
                 results.Add(result);
             }
 

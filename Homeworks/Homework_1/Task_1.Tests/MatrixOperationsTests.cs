@@ -39,8 +39,16 @@ namespace Task_1.Tests
             var matrix = MatrixOperations.Generate(rowsNumber, columnsNumber, minNumber, maxNumber);
             MatrixOperations.WriteToFile(matrix, "../../../Matrix.txt");
             var readMatrix = MatrixOperations.ReadFromFile("../../../Matrix.txt");
-            Assert.IsTrue(MatrixOperations.Compare(matrix, readMatrix));
-            File.Delete("../../../Matrix.txt");
+            try
+            {
+                Assert.IsTrue(MatrixOperations.Compare(matrix, readMatrix));
+                File.Delete("../../../Matrix.txt");
+            }
+            catch (Exception)
+            {
+                File.Delete("../../../Matrix.txt");
+                Assert.Fail();
+            }
         }
 
         [TestCaseSource(nameof(IncorrectTestDataForReadingFromFile))]
@@ -114,14 +122,14 @@ namespace Task_1.Tests
             var functions = new Func<int[,], int[,], int[,]>[] { (firstMatrix, secondMatrix) => MatrixOperations.Multiply(firstMatrix, secondMatrix),
                                                                  (firstMatrix, secondMatrix) => MatrixOperations.MultiplyInParallel(firstMatrix, secondMatrix) };
 
-            foreach (var fucntion in functions)
+            foreach (var function in functions)
             {
                 yield return new object[] { new int[,] { { 1, 2, 3 }, { 4, 5, 6 } }, new int[,] { { 1, 2 }, { 3, 4 }, { 5, 6 } },
-                                            new int[,] { { 22, 28 }, { 49, 64 } }, fucntion };
+                                            new int[,] { { 22, 28 }, { 49, 64 } }, function  };
                 yield return new object[] { new int[,] { { 1, 2 }, { 3, 4 } }, new int[,] { { 1, 2 }, { 3, 4 } },
-                                            new int[,] { { 7, 10 }, { 15, 22 } }, fucntion };
+                                            new int[,] { { 7, 10 }, { 15, 22 } }, function  };
                 yield return new object[] { new int[,] { { 1, 0 } }, new int[,] { { 1, 2 }, { 3, 4 } },
-                                            new int[,] { { 1, 2 } }, fucntion };
+                                            new int[,] { { 1, 2 } }, function  };
             }
         }
 
