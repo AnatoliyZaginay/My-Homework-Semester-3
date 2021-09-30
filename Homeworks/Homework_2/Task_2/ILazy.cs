@@ -6,7 +6,7 @@ namespace Task_2
     /// Lazy interface.
     /// </summary>
     /// <typeparam name="T">Type of the supplier's return value.</typeparam>
-    public interface ILazy<T>
+    public interface ILazy<out T>
     {
         /// <summary>
         /// Returns supplier's return value (calculates it only once)

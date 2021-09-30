@@ -45,6 +45,7 @@ namespace Task_2
                 if (!isCalculated)
                 {
                     calculationResult = supplier();
+                    supplier = null;
                     isCalculated = true;
                 }
             }
