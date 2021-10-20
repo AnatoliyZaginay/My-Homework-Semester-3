@@ -16,7 +16,7 @@ namespace Task_3
 
         private CancellationTokenSource cancellationTokenSource = new();
 
-        private ManualResetEvent isTaskAvailable = new(false);
+        private AutoResetEvent isTaskAvailable = new(false);
 
         private object lockObject = new();
 
@@ -151,6 +151,11 @@ namespace Task_3
                 else
                 {
                     isTaskAvailable.WaitOne();
+
+                    if (cancellationToken.IsCancellationRequested || taskQueue.Count >= 2)
+                    {
+                        isTaskAvailable.Set();
+                    }
                 }
             }
         }
