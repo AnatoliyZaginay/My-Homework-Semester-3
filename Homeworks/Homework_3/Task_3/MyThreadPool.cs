@@ -12,6 +12,7 @@ namespace Task_3
         private Thread[] threads;
         private ConcurrentQueue<Action> taskQueue = new ConcurrentQueue<Action>();
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private AutoResetEvent isTaskAvailaible = new AutoResetEvent(false);
 
         public MyThreadPool(int numberOfThreads)
         {
@@ -24,7 +25,7 @@ namespace Task_3
 
             for (int i = 0; i < threads.Length; ++i)
             {
-                //threads[i] = new Thread();
+                threads[i] = new Thread(() => ExecuteTasks(cancellationTokenSource.Token));
                 threads[i].Start();
             }
         }
@@ -77,6 +78,51 @@ namespace Task_3
             public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> function)
             {
 
+            }
+        }
+
+        private void ExecuteTasks(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested || !taskQueue.IsEmpty)
+            {
+                if (taskQueue.TryDequeue(out var taskRun))
+                {
+                    taskRun();
+                }
+                else
+                {
+                    isTaskAvailaible.WaitOne();
+                }
+            }
+        }
+
+        public IMyTask<TResult> Submit<TResult>(Func<TResult> function)
+        {
+            if (cancellationTokenSource.IsCancellationRequested)
+            {
+                throw new InvalidOperationException("Thread pool is shutdown");
+            }
+
+            if (function == null)
+            {
+                throw new ArgumentNullException("The function is null");
+            }
+
+            var task = new MyTask<TResult>(function, this);
+            taskQueue.Enqueue(task.Run);
+            isTaskAvailaible.Set();
+
+            return task;
+        }
+
+        public void Shutdown()
+        {
+            cancellationTokenSource.Cancel();
+            isTaskAvailaible.Set();
+
+            foreach (var thread in threads)
+            {
+                thread.Join();
             }
         }
     }
