@@ -5,6 +5,9 @@ using System.Threading;
 
 namespace Task_3
 {
+    /// <summary>
+    /// A class that implements a thread pool for performing tasks.
+    /// </summary>
     public class MyThreadPool
     {
         private Thread[] threads;
@@ -19,6 +22,10 @@ namespace Task_3
 
         private volatile int numberOfTasks = 0;
 
+        /// <summary>
+        /// Creates a new thread pool.
+        /// </summary>
+        /// <param name="numberOfThreads">Number of threads in the pool.</param>
         public MyThreadPool(int numberOfThreads)
         {
             if (numberOfThreads <= 0)
@@ -148,6 +155,11 @@ namespace Task_3
             }
         }
 
+        /// <summary>
+        /// Returns the task added to the thread pool.
+        /// </summary>
+        /// <typeparam name="TResult">Task result type.</typeparam>
+        /// <param name="function">Task function.</param>
         public IMyTask<TResult> Submit<TResult>(Func<TResult> function)
         {
             if (function == null)
@@ -172,6 +184,9 @@ namespace Task_3
             }
         }
 
+        /// <summary>
+        /// Stops threads work in the thread pool
+        /// </summary>
         public void Shutdown()
         {
             lock (lockObject)
