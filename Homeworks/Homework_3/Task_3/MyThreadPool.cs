@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Task_3
@@ -10,9 +8,11 @@ namespace Task_3
     public class MyThreadPool
     {
         private Thread[] threads;
-        private ConcurrentQueue<Action> taskQueue = new ConcurrentQueue<Action>();
-        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        private AutoResetEvent isTaskAvailaible = new AutoResetEvent(false);
+        private ConcurrentQueue<Action> taskQueue = new();
+        private CancellationTokenSource cancellationTokenSource = new();
+        private AutoResetEvent isTaskAvailable = new(false);
+        private object lockObject = new();
+        private volatile int numberOfTasks = 0;
 
         public MyThreadPool(int numberOfThreads)
         {
@@ -35,13 +35,17 @@ namespace Task_3
             private Func<TResult> function;
             private MyThreadPool threadPool;
             private TResult result;
-            private ManualResetEvent resulatIsCalculated = new ManualResetEvent(false);
+            private ManualResetEvent resultIsCalculated = new(false);
             private Exception caughtExcpetion;
+            private CancellationToken cancellationToken;
+            private Queue<Action> localQueue = new();
+            private object lockObject = new();
 
             public MyTask(Func<TResult> function, MyThreadPool threadPool)
             {
                 this.function = function;
                 this.threadPool = threadPool;
+                cancellationToken = threadPool.cancellationTokenSource.Token;
             }
 
             public void Run()
@@ -55,9 +59,19 @@ namespace Task_3
                     caughtExcpetion = exception;
                 }
 
-                IsCompleted = true;
-                resulatIsCalculated.Set();
+                lock (lockObject)
+                {
+                    IsCompleted = true;
+                }
+
+                resultIsCalculated.Set();
                 function = null;
+
+                foreach (var taskContinuation in localQueue)
+                {
+                    threadPool.taskQueue.Enqueue(taskContinuation);
+                    threadPool.isTaskAvailable.Set();
+                }
             }
 
             public bool IsCompleted { get; private set; }
@@ -66,7 +80,7 @@ namespace Task_3
             {
                 get
                 {
-                    resulatIsCalculated.WaitOne();
+                    resultIsCalculated.WaitOne();
                     if (caughtExcpetion != null)
                     {
                         throw new AggregateException(caughtExcpetion);
@@ -77,7 +91,32 @@ namespace Task_3
 
             public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> function)
             {
+                if (function == null)
+                {
+                    throw new ArgumentNullException("The function is null");
+                }
 
+                lock (lockObject)
+                {
+                    if (IsCompleted)
+                    {
+                        return threadPool.Submit(() => function(Result));
+                    }
+
+                    lock (threadPool.lockObject)
+                    {
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            throw new InvalidOperationException("Thread pool is shutdown");
+                        }
+
+                        var taskContinuation = new MyTask<TNewResult>(() => function(Result), threadPool);
+                        localQueue.Enqueue(taskContinuation.Run);
+                        Interlocked.Increment(ref threadPool.numberOfTasks);
+
+                        return taskContinuation;
+                    }
+                }
             }
         }
 
@@ -87,38 +126,48 @@ namespace Task_3
             {
                 if (taskQueue.TryDequeue(out var taskRun))
                 {
+                    Interlocked.Decrement(ref numberOfTasks);
                     taskRun();
                 }
                 else
                 {
-                    isTaskAvailaible.WaitOne();
+                    isTaskAvailable.WaitOne();
                 }
             }
         }
 
         public IMyTask<TResult> Submit<TResult>(Func<TResult> function)
         {
-            if (cancellationTokenSource.IsCancellationRequested)
-            {
-                throw new InvalidOperationException("Thread pool is shutdown");
-            }
-
             if (function == null)
             {
                 throw new ArgumentNullException("The function is null");
             }
 
-            var task = new MyTask<TResult>(function, this);
-            taskQueue.Enqueue(task.Run);
-            isTaskAvailaible.Set();
+            lock (lockObject)
+            {
+                if (cancellationTokenSource.IsCancellationRequested)
+                {
+                    throw new InvalidOperationException("Thread pool is shutdown");
+                }
 
-            return task;
+                var task = new MyTask<TResult>(function, this);
+
+                taskQueue.Enqueue(task.Run);
+                isTaskAvailable.Set();
+                Interlocked.Increment(ref numberOfTasks);
+
+                return task;
+            }
         }
 
         public void Shutdown()
         {
-            cancellationTokenSource.Cancel();
-            isTaskAvailaible.Set();
+            lock (lockObject)
+            {
+                cancellationTokenSource.Cancel();
+            }
+
+            isTaskAvailable.Set();
 
             foreach (var thread in threads)
             {
