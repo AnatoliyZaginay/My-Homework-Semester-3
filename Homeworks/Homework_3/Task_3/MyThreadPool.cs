@@ -8,10 +8,15 @@ namespace Task_3
     public class MyThreadPool
     {
         private Thread[] threads;
+
         private ConcurrentQueue<Action> taskQueue = new();
+
         private CancellationTokenSource cancellationTokenSource = new();
-        private AutoResetEvent isTaskAvailable = new(false);
+
+        private ManualResetEvent isTaskAvailable = new(false);
+
         private object lockObject = new();
+
         private volatile int numberOfTasks = 0;
 
         public MyThreadPool(int numberOfThreads)
@@ -33,12 +38,19 @@ namespace Task_3
         private class MyTask<TResult> : IMyTask<TResult>
         {
             private Func<TResult> function;
+
             private MyThreadPool threadPool;
+
             private TResult result;
+
             private ManualResetEvent resultIsCalculated = new(false);
+
             private Exception caughtExcpetion;
+
             private CancellationToken cancellationToken;
+
             private Queue<Action> localQueue = new();
+
             private object lockObject = new();
 
             public MyTask(Func<TResult> function, MyThreadPool threadPool)
@@ -122,7 +134,7 @@ namespace Task_3
 
         private void ExecuteTasks(CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested || !taskQueue.IsEmpty)
+            while (!cancellationToken.IsCancellationRequested || numberOfTasks > 0)
             {
                 if (taskQueue.TryDequeue(out var taskRun))
                 {
