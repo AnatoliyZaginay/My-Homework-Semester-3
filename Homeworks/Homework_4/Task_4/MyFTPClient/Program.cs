@@ -8,7 +8,7 @@ namespace MyFTPClient
     {
         static async Task Main(string[] args)
         {
-            Console.Write("Enter the IP: ");
+            /*Console.Write("Enter the IP: ");
             var ipString = Console.ReadLine();
 
             if (!IPAddress.TryParse(ipString, out var ip))
@@ -24,9 +24,59 @@ namespace MyFTPClient
             {
                 Console.WriteLine("Incorrect port");
                 return;
-            }
+            }*/
+
+            var ipString = "127.0.0.1";
+            var port = 8888;
 
             var client = new MyClient(ipString, port);
+
+            Console.WriteLine("Commands: ");
+            Console.WriteLine("1 - list of files in the directory");
+            Console.WriteLine("2 - downloads the specified file");
+
+            try
+            {
+                var command = Console.ReadLine();
+                switch (command)
+                {
+                    case "1":
+                        {
+                            Console.Write("Enter directory path: ");
+                            var directoryPath = Console.ReadLine();
+
+                            var response = await client.List(directoryPath);
+                            Console.WriteLine("Response:");
+                            Console.WriteLine($"Size: {response.size}");
+                            foreach (var (name, isDir) in response.list)
+                            {
+                                Console.WriteLine($"{name} {isDir}");
+                            }
+                            break;
+                        }
+
+                    case "2":
+                        {
+                            Console.Write("Enter path: ");
+                            var path = Console.ReadLine();
+                            Console.Write("Enter destination path: ");
+                            var destinationPath = Console.ReadLine();
+
+                            await client.Get(destinationPath, path);
+                            Console.WriteLine("File successfully downloaded.");
+                            break;
+                        }
+                    default:
+                        {
+                            Console.WriteLine("Incorrect command.");
+                            break;
+                        }
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"Exception: {exception.Message}");
+            }
         }
     }
 }

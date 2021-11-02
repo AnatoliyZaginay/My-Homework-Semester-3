@@ -16,7 +16,7 @@ namespace MyFTPClient
             client = new(host, port);
         }
 
-        public async Task<(int, List<(string, bool)>)> List(string directoryPath)
+        public async Task<(int size, List<(string, bool)> list)> List(string directoryPath)
         {
             using var stream = client.GetStream();
             using var reader = new StreamReader(stream);
@@ -60,8 +60,12 @@ namespace MyFTPClient
                 throw new ArgumentException("File not exists");
             }
 
+            var size = int.Parse(response);
+            var bytes = new byte[size];
+            await reader.BaseStream.ReadAsync(bytes);
+
             using var fileStream = File.Create(destination);
-            await reader.BaseStream.CopyToAsync(fileStream);
+            await fileStream.WriteAsync(bytes);
         }
     }
 }

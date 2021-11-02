@@ -3,16 +3,19 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace FtpServer
 {
     public class MyServer
     {
         private TcpListener listener;
+        private CancellationTokenSource cancellationTokenSource;
 
         public MyServer(IPAddress ip, int port)
         {
             listener = new(ip, port);
+            cancellationTokenSource = new();
         }
 
         private async Task List(StreamWriter writer, string directoryPath)
@@ -87,12 +90,15 @@ namespace FtpServer
         public async Task Run()
         {
             listener.Start();
-
-            while (true)
+            while (!cancellationTokenSource.IsCancellationRequested)
             {
                 var socket = await listener.AcceptSocketAsync();
                 await Task.Run(() => Work(socket));
             }
+            listener.Stop();
         }
+
+        public void Stop()
+            => cancellationTokenSource.Cancel();
     }
 }
