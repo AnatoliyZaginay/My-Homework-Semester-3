@@ -2,13 +2,13 @@
 using System.Threading.Tasks;
 using System.Net;
 
-namespace FtpServer
+namespace MyFTPServer
 {
     class Program
     {
         static async Task Main(string[] args)
         {
-            /*Console.Write("Enter the IP: ");
+            Console.Write("Enter the IP: ");
             var ipString = Console.ReadLine();
 
             if (!IPAddress.TryParse(ipString, out var ip))
@@ -24,10 +24,7 @@ namespace FtpServer
             {
                 Console.WriteLine("Incorrect port");
                 return;
-            }*/
-
-            IPAddress.TryParse("127.0.0.1", out var ip);
-            var port = 8888;
+            }
 
             var server = new MyServer(ip, port);
             Console.WriteLine("Server is running");

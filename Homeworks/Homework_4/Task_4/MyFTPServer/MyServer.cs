@@ -1,11 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace FtpServer
+namespace MyFTPServer
 {
     public class MyServer
     {

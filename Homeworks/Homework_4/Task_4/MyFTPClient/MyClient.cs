@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -44,7 +43,7 @@ namespace MyFTPClient
             return (size, list);
         }
 
-        public async Task Get(string destination, string source)
+        public async Task<int> Get(string destination, string source)
         {
             using var stream = client.GetStream();
             using var reader = new StreamReader(stream);
@@ -66,6 +65,8 @@ namespace MyFTPClient
 
             using var fileStream = File.Create(destination);
             await fileStream.WriteAsync(bytes);
+
+            return size;
         }
     }
 }

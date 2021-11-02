@@ -8,7 +8,7 @@ namespace MyFTPClient
     {
         static async Task Main(string[] args)
         {
-            /*Console.Write("Enter the IP: ");
+            Console.Write("Enter the IP: ");
             var ipString = Console.ReadLine();
 
             if (!IPAddress.TryParse(ipString, out var ip))
@@ -24,10 +24,7 @@ namespace MyFTPClient
             {
                 Console.WriteLine("Incorrect port");
                 return;
-            }*/
-
-            var ipString = "127.0.0.1";
-            var port = 8888;
+            }
 
             var client = new MyClient(ipString, port);
 
@@ -62,7 +59,8 @@ namespace MyFTPClient
                             Console.Write("Enter destination path: ");
                             var destinationPath = Console.ReadLine();
 
-                            await client.Get(destinationPath, path);
+                            var response = await client.Get(destinationPath, path);
+                            Console.WriteLine($"File size: {response}");
                             Console.WriteLine("File successfully downloaded.");
                             break;
                         }
