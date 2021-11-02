@@ -6,11 +6,17 @@ using System.Threading;
 
 namespace MyFTPServer
 {
+    /// <summary>
+    /// Implementation of the FTP server.
+    /// </summary>
     public class MyServer
     {
         private TcpListener listener;
         private CancellationTokenSource cancellationTokenSource;
 
+        /// <summary>
+        /// Creates new FTP server.
+        /// </summary>
         public MyServer(IPAddress ip, int port)
         {
             listener = new(ip, port);
@@ -86,6 +92,9 @@ namespace MyFTPServer
             }
         }
 
+        /// <summary>
+        /// Starts the server.
+        /// </summary>
         public async Task Run()
         {
             listener.Start();
@@ -97,6 +106,9 @@ namespace MyFTPServer
             listener.Stop();
         }
 
+        /// <summary>
+        /// Stops the server.
+        /// </summary>
         public void Stop()
             => cancellationTokenSource.Cancel();
     }

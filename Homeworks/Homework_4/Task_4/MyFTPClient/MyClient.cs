@@ -6,15 +6,25 @@ using System.Threading.Tasks;
 
 namespace MyFTPClient
 {
+    /// <summary>
+    /// Implementation of the FTP server client.
+    /// </summary>
     public class MyClient
     {
         private TcpClient client;
 
+        /// <summary>
+        /// Creates new FTP server client.
+        /// </summary>
         public MyClient(string host, int port)
         {
             client = new(host, port);
         }
 
+        /// <summary>
+        /// Returns a list of files and directories in the specified directory.
+        /// </summary>
+        /// <param name="directoryPath">Path to the directory.</param>
         public async Task<(int size, List<(string, bool)> list)> List(string directoryPath)
         {
             using var stream = client.GetStream();
@@ -43,6 +53,11 @@ namespace MyFTPClient
             return (size, list);
         }
 
+        /// <summary>
+        /// Downloads the specified file, and returns its size.
+        /// </summary>
+        /// <param name="destination">The path to download the file.</param>
+        /// <param name="source">Path to the specified file.</param>
         public async Task<int> Get(string destination, string source)
         {
             using var stream = client.GetStream();
