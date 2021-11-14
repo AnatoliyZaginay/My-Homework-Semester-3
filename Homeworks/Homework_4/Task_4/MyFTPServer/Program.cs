@@ -6,21 +6,26 @@ namespace MyFTPServer
 {
     class Program
     {
+        private static void Help()
+        {
+            Console.WriteLine("Write the IP address and port to start the server");
+        }
+
         static async Task Main(string[] args)
         {
-            Console.Write("Enter the IP: ");
-            var ipString = Console.ReadLine();
+            if (args.Length != 2)
+            {
+                Help();
+                return;
+            }
 
-            if (!IPAddress.TryParse(ipString, out var ip))
+            if (!IPAddress.TryParse(args[0], out var ip))
             {
                 Console.WriteLine("Incorrect IP");
                 return;
             }
 
-            Console.Write("Enter the port: ");
-            var portString = Console.ReadLine();
-
-            if (!int.TryParse(portString, out var port) || port < 0 || port > 65535)
+            if (!int.TryParse(args[1], out var port) || port < 0 || port > 65535)
             {
                 Console.WriteLine("Incorrect port");
                 return;
