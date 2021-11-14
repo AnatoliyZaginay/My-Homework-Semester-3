@@ -3,6 +3,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Text;
+using System.Collections.Generic;
 
 namespace MyFTPServer
 {
@@ -11,15 +13,17 @@ namespace MyFTPServer
     /// </summary>
     public class MyServer
     {
-        private TcpListener listener;
         private CancellationTokenSource cancellationTokenSource;
+        private IPAddress ip;
+        private int port;
 
         /// <summary>
         /// Creates new FTP server.
         /// </summary>
         public MyServer(IPAddress ip, int port)
         {
-            listener = new(ip, port);
+            this.ip = ip;
+            this.port = port;
             cancellationTokenSource = new();
         }
 
@@ -35,16 +39,16 @@ namespace MyFTPServer
             var directories = Directory.GetDirectories(directoryPath);
 
             var size = files.Length + directories.Length;
-            var result = $"{size}";
+            var result = new StringBuilder($"{size}");
 
             foreach (var file in files)
             {
-                result += $" {file} false";
+                result.Append($" {file} false");
             }
 
             foreach (var directory in directories)
             {
-                result += $" {directory} true";
+                result.Append($" {directory} true");
             }
 
             await writer.WriteLineAsync(result);
@@ -62,33 +66,35 @@ namespace MyFTPServer
             await writer.WriteLineAsync($"{size}");
 
             await File.OpenRead(filePath).CopyToAsync(writer.BaseStream);
-            await writer.WriteLineAsync();
         }
 
         private async Task Work(Socket socket)
         {
-            using var stream = new NetworkStream(socket);
-            using var reader = new StreamReader(stream);
-            using var writer = new StreamWriter(stream);
-            writer.AutoFlush = true;
-
-            var request = await reader.ReadLineAsync();
-            var arguments = request.Split(' ');
-
-            if (arguments.Length != 2 || (arguments[0] != "1" && arguments[0] != "2"))
+            using (socket)
             {
-                await writer.WriteLineAsync("Incorrect request");
-                return;
-            }
+                using var stream = new NetworkStream(socket);
+                using var reader = new StreamReader(stream);
+                using var writer = new StreamWriter(stream);
+                writer.AutoFlush = true;
 
-            switch (arguments[0])
-            {
-                case "1":
-                    await List(writer, arguments[1]);
+                var request = await reader.ReadLineAsync();
+                var arguments = request.Split(' ');
+
+                if (arguments.Length != 2 || (arguments[0] != "1" && arguments[0] != "2"))
+                {
+                    await writer.WriteLineAsync("Incorrect request");
                     return;
-                case "2":
-                    await Get(writer, arguments[1]);
-                    return;
+                }
+
+                switch (arguments[0])
+                {
+                    case "1":
+                        await List(writer, arguments[1]);
+                        return;
+                    case "2":
+                        await Get(writer, arguments[1]);
+                        return;
+                }
             }
         }
 
@@ -97,12 +103,19 @@ namespace MyFTPServer
         /// </summary>
         public async Task Run()
         {
+            var listener = new TcpListener(ip, port);
             listener.Start();
+
+            var clients = new List<Task>();
+
             while (!cancellationTokenSource.IsCancellationRequested)
             {
                 var socket = await listener.AcceptSocketAsync();
-                await Task.Run(() => Work(socket));
+                var client = Task.Run(() => Work(socket));
+                clients.Add(client);
             }
+
+            Task.WaitAll(clients.ToArray());
             listener.Stop();
         }
 

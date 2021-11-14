@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Net;
 
 namespace MyFTPClient
@@ -42,10 +43,10 @@ namespace MyFTPClient
                             Console.Write("Enter directory path: ");
                             var directoryPath = Console.ReadLine();
 
-                            var response = await client.List(directoryPath);
+                            var response = await client.List(directoryPath, CancellationToken.None);
                             Console.WriteLine("Response:");
-                            Console.WriteLine($"Size: {response.size}");
-                            foreach (var (name, isDir) in response.list)
+                            Console.WriteLine($"Size: {response.Count}");
+                            foreach (var (name, isDir) in response)
                             {
                                 Console.WriteLine($"{name} {isDir}");
                             }
@@ -59,7 +60,7 @@ namespace MyFTPClient
                             Console.Write("Enter destination path: ");
                             var destinationPath = Console.ReadLine();
 
-                            var response = await client.Get(destinationPath, path);
+                            var response = await client.Get(destinationPath, path, CancellationToken.None);
                             Console.WriteLine($"File size: {response}");
                             Console.WriteLine("File successfully downloaded.");
                             break;

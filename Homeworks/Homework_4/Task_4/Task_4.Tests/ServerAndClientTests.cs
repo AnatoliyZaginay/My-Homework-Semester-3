@@ -4,6 +4,7 @@ using MyFTPClient;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using System.Threading;
 using System;
 
 namespace Task_4.Tests
@@ -34,8 +35,8 @@ namespace Task_4.Tests
         {
             var client = new MyClient("127.0.0.1", 8888);
 
-            var result = await client.List(path);
-            Assert.AreEqual(2, result.size);
+            var result = await client.List(path, CancellationToken.None);
+            Assert.AreEqual(2, result.Count);
 
             var expected = new[]
             {
@@ -43,9 +44,9 @@ namespace Task_4.Tests
                 (path + "\\TestDirectory", true)
             };
 
-            for (int i = 0; i < result.list.Count; ++i)
+            for (int i = 0; i < result.Count; ++i)
             {
-                Assert.AreEqual(expected[i], result.list[i]);
+                Assert.AreEqual(expected[i], result[i]);
             }
         }
 
@@ -54,7 +55,7 @@ namespace Task_4.Tests
         {
             var client = new MyClient("127.0.0.1", 8888);
 
-            Assert.Throws<AggregateException>(() => client.List(path + "\\ThisDirectoryNotExists").Wait());
+            Assert.Throws<AggregateException>(() => client.List(path + "\\ThisDirectoryNotExists", CancellationToken.None).Wait());
         }
 
         [Test]
@@ -62,7 +63,7 @@ namespace Task_4.Tests
         {
             var client = new MyClient("127.0.0.1", 8888);
 
-            var result = await client.Get(path + "\\TestDirectory\\result.txt", path + "\\TestDirectory\\test.txt");
+            var result = await client.Get(path + "\\TestDirectory\\result.txt", path + "\\TestDirectory\\test.txt", CancellationToken.None);
 
             Assert.IsTrue(File.Exists(path + "\\TestDirectory\\result.txt"));
 
@@ -78,7 +79,7 @@ namespace Task_4.Tests
         {
             var client = new MyClient("127.0.0.1", 8888);
 
-            Assert.Throws<AggregateException>(() => client.Get(path + "\\TestDirectory\\result.txt", path + "\\TestDirectory\\thisFileNotExists.txt").Wait());
+            Assert.Throws<AggregateException>(() => client.Get(path + "\\TestDirectory\\result.txt", path + "\\TestDirectory\\thisFileNotExists.txt", CancellationToken.None).Wait());
         }
     }
 }
